@@ -40,7 +40,7 @@ jobs:
                 #- vpc_region: "implicitly set from aws_vpc_tf_info"
                 #- vpc_public_sg_id: "implicitly set from aws_vpc_tf_info"
                 #- vpc_public_sn_id: "implicitly set from aws_vpc_tf_info"
-                - source_ami: "ami-43a15f3e)"
+                - source_ami: "ami-43a15f3e"
                 - instance_type: "t2.micro"
                 - ssh_username: "ubuntu"
           script:
