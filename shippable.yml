@@ -1,0 +1,63 @@
+resources:
+# Automation scripts repo
+  - name: aws_ami_pack_repo
+    type: gitRepo
+    integration: "drship_github"
+    versionTemplate:
+      sourceName: "devops-recipes/aws_ami_with_packer"
+      branch: master
+
+# AWS credentials
+  - name: aws_ami_pack_creds
+    type: integration
+    integration: "drship_aws"
+
+# Output of Packer Image Build
+  - name: aws_ami_pack_info
+    type: params
+    versionTemplate:
+      params:
+        SEED: true
+
+jobs:
+# Build AWS AMI with Packer
+  - name: build_aws_ami_pack
+    type: runSh
+    steps:
+      - IN: aws_vpc_tf_info
+      - IN: aws_ami_pack_repo
+        switch: off
+      - IN: aws_vpc_tf_state
+        switch: off
+      - IN: aws_ami_pack_creds
+        switch: off
+      - TASK:
+          name: build_ami
+          runtime:
+            options:
+              env:
+                #- vpc_id: "implicitly set from aws_vpc_tf_info"
+                #- vpc_region: "implicitly set from aws_vpc_tf_info"
+                #- vpc_public_sg_id: "implicitly set from aws_vpc_tf_info"
+                #- vpc_public_sn_id: "implicitly set from aws_vpc_tf_info"
+                - source_ami: "ami-43a15f3e)"
+                - instance_type: "t2.micro"
+                - ssh_username: "ubuntu"
+          script:
+            - pushd $(shipctl get_resource_state "aws_ami_pack_repo")
+            - export AWS_ACCESS_KEY_ID=$(shipctl get_integration_resource_field aws_ami_pack_creds "accessKey")
+            - export AWS_SECRET_ACCESS_KEY=$(shipctl get_integration_resource_field aws_ami_pack_creds "secretKey")
+            - shipctl replace vars.json
+            - packer validate -var-file=vars.json baseAMI.json
+            - packer build -var-file=vars.json baseAMI.json
+            - AMI_ID=$(shipctl get_json_value manifest.json builds[0].artifact_id | cut -d':' -f 2)
+      - OUT: aws_ami_pack_info
+        overwrite: true
+    on_success:
+      script:
+        - shipctl post_resource_state aws_ami_pack_info versionName $AMI_ID
+        - popd
+    flags:
+      - aws_ami
+      - aws
+      - packer
