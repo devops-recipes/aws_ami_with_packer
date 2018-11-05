@@ -10,7 +10,7 @@ resources:
 # AWS credentials
   - name: aws_ami_pack_creds
     type: integration
-    integration: "drship_aws"
+    integration: "dr_aws"
 
 # Output of Packer Image Build
   - name: aws_ami_pack_info
