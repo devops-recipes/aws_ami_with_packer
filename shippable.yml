@@ -24,8 +24,8 @@ jobs:
   - name: build_aws_ami_pack
     type: runSh
     steps:
-      - IN: aws_vpc_tf_info
       - IN: aws_ami_pack_repo
+      - IN: aws_vpc_tf_info
         switch: off
       - IN: aws_vpc_tf_state
         switch: off
