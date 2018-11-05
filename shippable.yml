@@ -2,7 +2,7 @@ resources:
 # Automation scripts repo
   - name: aws_ami_pack_repo
     type: gitRepo
-    integration: "drship_github"
+    integration: "dr_gh"
     versionTemplate:
       sourceName: "devops-recipes/aws_ami_with_packer"
       branch: master
